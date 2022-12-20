@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {FormEvent} from 'react';
 import {Button, Form, InputGroup} from "react-bootstrap";
 import Spinner from "../Spinner/Spinner";
 import {useDispatch, useSelector} from "react-redux";
@@ -14,26 +14,31 @@ const AddTaskForm = () => {
     dispatch(changeNewTask(e.target.value));
   }
 
-  const onAdd = async () => {
+  const onAdd = async (e: FormEvent) => {
+    e.preventDefault();
+
     await dispatch(addTask());
     await dispatch(fetchTasks());
   };
 
   return (
-    <Form>
+    <Form onSubmit={onAdd}>
       <Form.Group>
         <InputGroup className="mb-3">
           <Form.Control
             placeholder="Task..."
             onChange={handleChange}
             value={newTask.text}
+            required
+            autoFocus
+            className="text-center"
           />
           <Button
-            variant="outline-secondary"
-            onClick={onAdd}
+            variant="outline-info"
+            type="submit"
+            style={{minHeight: '2.5em', minWidth: '5em'}}
           >
-            {updateLoading ? <Spinner inline/> : null}
-            Add
+            {updateLoading ? <Spinner inline variant="light"/> : 'Add'}
           </Button>
         </InputGroup>
       </Form.Group>

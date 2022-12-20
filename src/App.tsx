@@ -3,7 +3,7 @@ import './App.css';
 import TodoList from "./containers/TodoList/TodoList";
 
 function App() {
-  return (<TodoList/>);
+  return <TodoList/>;
 }
 
 export default App;

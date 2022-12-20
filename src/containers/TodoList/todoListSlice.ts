@@ -1,10 +1,10 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {Task, TaskApi, TaskWithId} from "../../types";
+import {Task, TaskApi, TaskViewData} from "../../types";
 import axiosApi from "../../axiosApi";
 import {RootState} from "../../App/Store";
 
 interface TodoListState {
-  tasks: TaskWithId[];
+  tasks: TaskViewData[];
   loading: boolean;
   error: boolean;
   updateLoading: boolean;
@@ -22,16 +22,18 @@ const initialState: TodoListState = {
   },
 };
 
-export const fetchTasks = createAsyncThunk<TaskWithId[]>(
+export const fetchTasks = createAsyncThunk<TaskViewData[]>(
   'todoList/fetch',
   async () => {
     const response = await axiosApi.get<TaskApi | null>('/todo-tasks.json');
     const data = response.data;
 
-    let newTasks: TaskWithId[] | null = null;
+    let newTasks: TaskViewData[] | null = null;
 
     if (data) newTasks = Object.keys(data).map((id) => ({
       id,
+      deleting: false,
+      updating: false,
       ...data[id]
     }))
 
@@ -42,12 +44,16 @@ export const fetchTasks = createAsyncThunk<TaskWithId[]>(
 export const addTask = createAsyncThunk<void, undefined, {state: RootState}>(
   'todoList/addTask',
   async (arg, thunkAPi) => {
-    const newTask = thunkAPi.getState().todoList.newTask;
-    await axiosApi.post('/todo-tasks.json', newTask);
+    try {
+      const newTask = thunkAPi.getState().todoList.newTask;
+      await axiosApi.post('/todo-tasks.json', newTask);
+    } catch (e) {
+      console.error(e);
+    }
   }
 );
 
-export interface ChangingTask {
+interface ChangingTask {
   isDone: boolean;
   id: string;
 }
@@ -55,13 +61,28 @@ export interface ChangingTask {
 export const changeTaskState = createAsyncThunk<void, ChangingTask, {state: RootState}>(
   'todoList/changeTaskState',
   async (arg, thunkAPi) => {
-    const oldTask = thunkAPi.getState().todoList.tasks.find((task) => task.id === arg.id);
-    if (!oldTask) return;
-    console.log(oldTask);
-    await axiosApi.put('/todo-tasks/' + arg.id + '.json', {
-      isDone: arg.isDone,
-      text: oldTask.text
-    })
+    try {
+      const oldTask = thunkAPi.getState().todoList.tasks.find((task) => task.id === arg.id);
+      if (!oldTask) return;
+
+      await axiosApi.put('/todo-tasks/' + arg.id + '.json', {
+        isDone: arg.isDone,
+        text: oldTask.text
+      })
+    } catch (e) {
+      console.error(e);
+    }
+  }
+);
+
+export const deleteTask = createAsyncThunk<void, {id: string}, {state: RootState}>(
+  'todoList/deleteTask',
+  async (arg) => {
+    try {
+      await axiosApi.delete('/todo-tasks/' + arg.id + '.json');
+    } catch (e) {
+      console.error(e);
+    }
   }
 );
 
@@ -92,6 +113,33 @@ export const todoListSlice = createSlice({
     });
     builder.addCase(addTask.fulfilled, (state) => {
       state.updateLoading = false;
+      state.newTask.text = '';
+    });
+
+    builder.addCase(changeTaskState.pending, (state, action) => {
+      const oldTask = state.tasks.find((task) => task.id === action.meta.arg.id);
+      if (!oldTask) return;
+
+      oldTask.updating = true;
+    });
+    builder.addCase(changeTaskState.fulfilled, (state, action) => {
+      const oldTask = state.tasks.find((task) => task.id === action.meta.arg.id);
+      if (!oldTask) return;
+
+      oldTask.updating = false;
+    });
+
+    builder.addCase(deleteTask.pending, (state, action) => {
+      const oldTask = state.tasks.find((task) => task.id === action.meta.arg.id);
+      if (!oldTask) return;
+
+      oldTask.deleting = true;
+    });
+    builder.addCase(deleteTask.fulfilled, (state, action) => {
+      const oldTask = state.tasks.find((task) => task.id === action.meta.arg.id);
+      if (!oldTask) return;
+
+      oldTask.deleting = false;
     });
   }
 });

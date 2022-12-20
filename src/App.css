@@ -1,5 +1,47 @@
 .custom-container {
     max-width: 700px;
-    padding: 0 1em;
     margin: 0 auto;
+}
+
+.task-height {
+    min-height: 3.5em;
+    transition: background-color .2s;
+}
+
+.task-height:hover {
+    background-color: #f3f3f3;
+
+}
+
+.task-check:checked {
+    background-color: rgb(13,202,240) !important;
+    opacity: 1 !important;
+    border: 0;
+}
+
+.btn-del:hover svg {
+    fill: black;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f3f3f3;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(13,202,240);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(14, 172, 204);
+}
+
+::placeholder {
+    color: #b6b6b6 !important;
+    font-style: italic;
 }

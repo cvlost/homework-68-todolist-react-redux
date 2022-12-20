@@ -3,8 +3,10 @@ export interface Task {
   text: string;
 }
 
-export interface TaskWithId extends Task {
+export interface TaskViewData extends Task {
   id: string;
+  deleting: boolean;
+  updating: boolean;
 }
 
 export interface TaskApi {
