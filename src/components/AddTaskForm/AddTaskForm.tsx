@@ -8,6 +8,7 @@ import {addTask, changeNewTask, fetchTasks} from "../../containers/TodoList/todo
 const AddTaskForm = () => {
   const dispatch = useDispatch<AppDispatch>();
   const updateLoading = useSelector((state: RootState) => state.todoList.updateLoading);
+  const loading = useSelector((state: RootState) => state.todoList.loading);
   const newTask = useSelector((state: RootState) => state.todoList.newTask);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,25 +24,27 @@ const AddTaskForm = () => {
 
   return (
     <Form onSubmit={onAdd}>
-      <Form.Group>
-        <InputGroup className="mb-3">
-          <Form.Control
-            placeholder="Task..."
-            onChange={handleChange}
-            value={newTask.text}
-            required
-            autoFocus
-            className="text-center"
-          />
-          <Button
-            variant="outline-info"
-            type="submit"
-            style={{minHeight: '2.5em', minWidth: '5em'}}
-          >
-            {updateLoading ? <Spinner inline variant="light"/> : 'Add'}
-          </Button>
-        </InputGroup>
-      </Form.Group>
+      <fieldset disabled={updateLoading || loading}>
+        <Form.Group>
+          <InputGroup className="mb-3">
+            <Form.Control
+              placeholder="Task..."
+              onChange={handleChange}
+              value={newTask.text}
+              required
+              autoFocus
+              className="text-center"
+            />
+            <Button
+              variant="outline-info"
+              type="submit"
+              style={{minHeight: '2.5em', minWidth: '5em'}}
+            >
+              {updateLoading ? <Spinner inline variant="light"/> : 'Add'}
+            </Button>
+          </InputGroup>
+        </Form.Group>
+      </fieldset>
     </Form>
   );
 };
