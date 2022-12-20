@@ -1,12 +1,9 @@
 import React from 'react';
 import './App.css';
+import TodoList from "./containers/TodoList/TodoList";
 
 function App() {
-  return (
-    <div>
-
-    </div>
-  );
+  return (<TodoList/>);
 }
 
 export default App;
